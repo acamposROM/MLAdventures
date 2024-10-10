@@ -11,7 +11,23 @@ typedef struct {
   int n_layers; // number of layers
   int n_heads; // number of query heads (is this a transformer thing?)
   int n_kv_heads; // number of key/value heads (can be < query heads because of the mulityquery)
-}
+  int vocab_size; // vocabulary size, usually 256 (byte level)
+  int seq_len; // max sequence length
+} Config;
+
+typedef struct {
+  // token embedding table
+  float* token_embedding_table; // (vocab_size, dim)
+  // weights for rmsnorms
+  float* rms_att_weight; // (layer, dim) rmsnorm weights
+  float* rms_ffn_weight; // (layer, dim)
+  // weights for matmuls. note dim == n_heads * head_size
+  float* wq; // (layer, dim, n_heads * head_size)
+  float* wk; // (layer, dim, n_kv_heads * head_size)
+  float* wv; // (layer, dim, n_kv_heads * head_size)
+  
+} TransformerWeights;
+
 void error_usage() {
     fprintf(stderr, "Usage:   run <checkpoint> [options]\n");
     fprintf(stderr, "Example: run model.bin -n 256 -i \"Once upon a time\"\n");
